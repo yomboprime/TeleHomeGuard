@@ -1390,27 +1390,9 @@ function updateSystem() {
 
 	execProgram( null, "sudo", [ "apt", "-y", "update" ], ( code1, output1, error1 ) => {
 
-		if ( error1 ) {
-
-			sendTextMessage( translation[ "Error: " ] + error1 );
-			sendTextMessage( "‼🛑" + translation[ "Error while updating operating system" ] + "🛑‼" );
-			menusEnabled = true;
-			return;
-
-		}
-
 		sendTextMessage( "ℹ️ " + translation[ "Installing updates..." ] );
 
 		execProgram( null, "sudo", [ "apt", "-y", "upgrade" ], ( code2, output2, error2 ) => {
-
-			if ( error2 ) {
-
-				sendTextMessage( translation[ "Error: " ] + error2 );
-				sendTextMessage( "‼🛑" + translation[ "Error while installing updates" ] + "🛑‼" );
-				menusEnabled = true;
-				return;
-
-			}
 
 			sendTextMessage( "ℹ️ " + translation[ "Updating application..." ] );
 
@@ -1545,12 +1527,12 @@ function finish() {
 
 		case EXIT_ERROR:
 			salute( true );
-			process.exit( 0 );
+			execProgram( null, "sudo", [ "shutdown", "now" ], null );
 			break;
 
 		case EXIT_REBOOTING:
 			salute( false );
-			execProgram( null, "sudo", [ "reboot" ], null )
+			execProgram( null, "sudo", [ "reboot" ], null );
 			break;
 
 		case EXIT_POWER_OFF:

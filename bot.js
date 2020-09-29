@@ -1438,7 +1438,7 @@ function updateSystem() {
 
 					}
 
-					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer ..." ] + " ✅" );
+					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer..." ] + " ✅" );
 
 					beginAppTermination( EXIT_REBOOTING );
 

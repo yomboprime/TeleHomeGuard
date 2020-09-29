@@ -1,0 +1,23 @@
+{
+  "name": "TeleHomeGuard",
+  "version": "1.0.0",
+  "keywords": [
+    "personal",
+    "surveillance",
+    "telegram"
+  ],
+  "author": "yomboprime",
+  "contributors": [],
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "devDependencies": {},
+  "license": "MIT",
+  "dependencies": {
+    "del": "^5.1.0",
+    "opencv4nodejs": "^5.6.0",
+    "pngjs": "^5.0.0",
+    "readable-stream": "^3.6.0",
+    "telegram-bot-api": "^2.0.1"
+  }
+}

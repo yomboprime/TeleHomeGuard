@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+/home/pi/TeleHomeGuard/run.sh || exit 1
+
+exit 0

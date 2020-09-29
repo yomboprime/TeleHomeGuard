@@ -1545,17 +1545,21 @@ function finish() {
 
 		case EXIT_ERROR:
 			salute( true );
-			execProgram( null, "sudo", [ "shutdown", "now" ], null );
+			process.exit( 0 );
 			break;
 
 		case EXIT_REBOOTING:
 			salute( false );
-			execProgram( null, "sudo", [ "reboot" ], null );
+			execProgram( null, "sudo", [ "reboot" ], () => {
+				process.exit( 0 );
+			}, 1000 );
 			break;
 
 		case EXIT_POWER_OFF:
 			salute( false );
-			process.exit( 0 );
+			execProgram( null, "sudo", [ "shutdown", "now" ], () => {
+				process.exit( 0 );
+			}, 1000 );
 			break;
 
 		default:

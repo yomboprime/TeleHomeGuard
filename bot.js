@@ -1440,7 +1440,7 @@ function updateSystem() {
 
 					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer..." ] + " ✅" );
 
-					beginAppTermination( EXIT_REBOOTING );
+					setTimeout( beginAppTermination, 1000, EXIT_REBOOTING );
 
 				}, true );
 

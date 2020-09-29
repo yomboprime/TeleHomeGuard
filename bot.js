@@ -1402,9 +1402,9 @@ function updateSystem() {
 
 				execProgram( null, "npm", [ "install" ], ( code3, output3, error3 ) => {
 
-					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer ..." ] + " ✅" );
+					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer..." ] + " ✅" );
 
-					beginAppTermination( EXIT_REBOOTING );
+					setTimeout( beginAppTermination, 1000, EXIT_REBOOTING );
 
 				}, true );
 

@@ -48,7 +48,7 @@
 	"Error while updating application": "Error al actualizar aplicación",
 	"Installing application updates...": "Instalando actualizaciones de la aplicación...",
 	"Error while installing application updates": "Error al instalar actualizaciones de la aplicación",
-	"The system has been updated successfully. Restarting computer ...": "El sistema se ha actualizado correctamente. Reiniciando ordenador...",
+	"The system has been updated successfully. Restarting computer...": "El sistema se ha actualizado correctamente. Reiniciando ordenador...",
 
 	"Delete videos": "Borrar vídeos",
 	"Cannot delete videos because a/some video/s are being recorded at this time. Please try again later.": "No se pueden borrar los vídeos porque se está/n grabando vídeo/s en este momento. Inténtalo más tarde.",

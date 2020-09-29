@@ -1398,27 +1398,9 @@ function updateSystem() {
 
 			execProgram( null, "git", [ "pull", "origin", "master" ], ( code3, output3, error3 ) => {
 
-				if ( error3 ) {
-
-					sendTextMessage( "Error: " + error3 );
-					sendTextMessage( "‼🛑" + translation[ "Error while updating application" ] + "🛑‼" );
-					menusEnabled = true;
-					return;
-
-				}
-
 				sendTextMessage( "ℹ️ " + translation[ "Installing application updates..." ] );
 
 				execProgram( null, "npm", [ "install" ], ( code3, output3, error3 ) => {
-
-					if ( error3 ) {
-
-						sendTextMessage( translation[ "Error: " ] + error3 );
-						sendTextMessage( "‼🛑" + translation[ "Error while installing application updates" ] + "🛑‼" );
-						menusEnabled = true;
-						return;
-
-					}
 
 					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer ..." ] + " ✅" );
 

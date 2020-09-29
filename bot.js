@@ -1390,21 +1390,57 @@ function updateSystem() {
 
 	execProgram( null, "sudo", [ "apt", "-y", "update" ], ( code1, output1, error1 ) => {
 
+		if ( code1 ) {
+
+			sendTextMessage( translation[ "Error: " ] + error1 );
+			sendTextMessage( "‼🛑" + translation[ "Error while updating operating system" ] + "🛑‼" );
+			menusEnabled = true;
+			return;
+
+		}
+
 		sendTextMessage( "ℹ️ " + translation[ "Installing updates..." ] );
 
 		execProgram( null, "sudo", [ "apt", "-y", "upgrade" ], ( code2, output2, error2 ) => {
+
+			if ( code2 ) {
+
+				sendTextMessage( translation[ "Error: " ] + error2 );
+				sendTextMessage( "‼🛑" + translation[ "Error while installing updates" ] + "🛑‼" );
+				menusEnabled = true;
+				return;
+
+			}
 
 			sendTextMessage( "ℹ️ " + translation[ "Updating application..." ] );
 
 			execProgram( null, "git", [ "pull", "origin", "master" ], ( code3, output3, error3 ) => {
 
+				if ( code3 ) {
+
+					sendTextMessage( "Error: " + error3 );
+					sendTextMessage( "‼🛑" + translation[ "Error while updating application" ] + "🛑‼" );
+					menusEnabled = true;
+					return;
+
+				}
+
 				sendTextMessage( "ℹ️ " + translation[ "Installing application updates..." ] );
 
-				execProgram( null, "npm", [ "install" ], ( code3, output3, error3 ) => {
+				execProgram( null, "npm", [ "install" ], ( code4, output4, error4 ) => {
 
-					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer..." ] + " ✅" );
+					if ( code4 ) {
 
-					setTimeout( beginAppTermination, 1000, EXIT_REBOOTING );
+						sendTextMessage( translation[ "Error: " ] + error4 );
+						sendTextMessage( "‼🛑" + translation[ "Error while installing application updates" ] + "🛑‼" );
+						menusEnabled = true;
+						return;
+
+					}
+
+					sendTextMessage( "✅ " + translation[ "The system has been updated successfully. Restarting computer ..." ] + " ✅" );
+
+					beginAppTermination( EXIT_REBOOTING );
 
 				}, true );
 

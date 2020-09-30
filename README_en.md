@@ -8,6 +8,8 @@ Characteristics:
 	- Several USB cameras.
 	- Motion detection, sends notifications and continuous recording (divided in video files of up to 5 minutes each)
 	- Instant Snapshots.
+	- Send it voice messages and it plays them through speakers.
+	- Complete menu
 	- Turn on and off the cameras from Telegram.
 	- Restart, power off and update system and program from Telegram.
 	- Free and without local server.
@@ -74,6 +76,7 @@ Finally, create the configuration file TeleHomeGuard/config/config.json and copy
 		"captureVideosPath": "./capture/",
 		"captureStillImagesPath": "./stillImages/",
 		"diskQuota": 50000000000,
+		"enableVoicePlayback": true,
 		"intruderAlert": true,
 		"showRestartAppOption": true,
 		"showUpdateSystemOption": true
@@ -162,6 +165,8 @@ The configuration menu has this options:
 	- Change language
 
 		The currently available languages are English and Spanish. Translations to other languages is welcome, see next section.
+
+Puedes conectar un altavoz a la Pi, y al enviarle al bot un mensaje de voz lo reproducirá y te notificará cuándo ha teminado de reproducir.
 
 ## Translations to other languages
 

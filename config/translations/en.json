@@ -16,7 +16,7 @@
 	"The surveillance system is on.": "The surveillance system is on.",
 	"The surveillance system is off.": "The surveillance system is off.",
 	"‼¡Error!‼ The camera: ": "‼¡Error!‼ The camera: ",
-	" has closed unexpectedly. Please restart the cameras or the computer to try to solve it. If it doesn't: please check the cable connections and try again.": " has closed unexpectedly. Please restart the cameras or the computer to try to solve it. If it doesn't: please check the cable connections and try again.",
+	" has closed unexpectedly. Please restart the cameras or the computer to try to solve it. If it doesn't: please check the cable connections and try again.": " has closed unexpectedly. Please restart the cameras or the computer to try to solve it. If it doesn't, please check the cable connections and try again.",
 	"Some camera/s could not be started. Pleache check the cable connections and restart cameras.": "Some camera/s could not be started. Pleache check the cable connections and restart cameras.",
 	" could not be started.": " could not be started.",
 	"Change number of cameras": "Change number of cameras",
@@ -64,10 +64,15 @@
 	"You must turn on the cameras before capturing an image.": "You must turn on the cameras before capturing an image.",
 	"The image could not be captured. Please restart the cameras and try again.": "The image could not be captured. Please restart the cameras and try again.",
 
+	"Playing voice file...": "Playing voice file...",
+	"Error downloading voice file.": "Error downloading voice file.",
+	"Error playing voice file: ": "Error playing voice file: ",
+	"Voice file played successfully.":. "Voice file played successfully.",
+
 	"Disk usage: Videos: ": "Disk usage: Videos: ",
 	", images: ": ", images: ",
 	". Percentage of disk full: ": ". Percentage of disk full: ",
-	"‼🛑Warning🛑‼ Disk space is low: you should delete the files.": "‼🛑Warning🛑‼ Disk space is low: you should delete the files.",
+	"‼🛑Warning🛑‼ Disk space is low: you should delete the files.": "‼🛑Warning🛑‼ Disk space is low, you should delete the files.",
 
 	"Change language": "Change language",
 	"Language has been changed to ": "Language has been changed to ",

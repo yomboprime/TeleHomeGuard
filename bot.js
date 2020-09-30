@@ -1,15 +1,16 @@
 
 // - Requires -
 
-const TG = require( 'telegram-bot-api' )
+const TG = require( 'telegram-bot-api' );
 const del = require('del');
 const cv = require( 'opencv4nodejs' );
 const PNG = require( 'pngjs' ).PNG;
 
-var fs = require( 'fs' );
-var pathJoin = require( 'path' ).join;
+const fs = require( 'fs' );
+const pathJoin = require( 'path' ).join;
 const { spawn } = require( 'child_process' );
-
+const https = require( 'https' );
+const Stream = require( 'stream' ).Transform;
 
 // - Global variables -
 
@@ -22,16 +23,13 @@ var languagesCodes = null;
 
 // App
 
-var app = null;
-var httpServer = null;
-//var wss = null;
-
 var isAppEnding = false;
 
 
 // Telegram
 
 var telegramAPI = null;
+var botToken = null;
 var telegramMessageProvider = null;
 var privateChatId = null;
 var mainMenuShown = false;
@@ -377,10 +375,11 @@ function loadTranslation() {
 
 function startTelegram( onStarted ) {
 
+	botToken = loadFile( "./config/token" );
 	privateChatId = parseInt( loadFile( "./config/chat_id" ) );
 
 	telegramAPI = new TG( {
-		token: loadFile( "./config/token" )
+		token: botToken
 	} );
 
 	telegramMessageProvider = new TG.GetUpdateMessageProvider();
@@ -420,11 +419,9 @@ function processTelegramUpdate( update ) {
 
 	if ( update.message ) {
 
-		var message = update.message;
+		if ( ! checkPrivateMessage( update.message ) ) return;
 
-		if ( ! checkPrivateMessage( message ) ) return;
-
-		parseUserInput( message.text );
+		parseUserInput( update.message );
 
 	}
 	else if ( update.callback_query ) {
@@ -458,6 +455,77 @@ function processTelegramUpdate( update ) {
 			if ( optionLabel ) menu.menuFunction( optionIndex, optionLabel );
 
 		}
+
+	}
+
+}
+
+function checkPrivateMessage( message ) {
+
+	if ( ! message ) return false;
+
+	if ( ( message.chat.id !== privateChatId ) && ( privateChatId ) ) {
+
+		if ( serverConfig.intruderAlert ) {
+
+			var intruderAlertMessage = translation[ "‼‼🛑Intruder alert!!!!🛑‼‼\nSomeone has tried to use this Telegram bot." ] + "\n" +
+				"nick: " + message.from.username +
+				"\nname: " + message.from.first_name +
+				"\nlast name:" + message.from.last_name +
+				"\nforwarded:" + ( !! message.forward_from ) +
+				"\ntext: " + message.text;
+
+			console.log( intruderAlertMessage );
+
+			// Send intruder alert message
+			sendTextMessage( intruderAlertMessage );
+
+			// Send some info to the intruder
+			sendTextMessage( "Hello! 👋\nThis is a personal bot for domotic use.\nFor more info please visit the project home at Github:\nhttps://github.com/yomboprime/TeleHomeGuard", message.chat.id );
+
+		}
+
+		return false;
+
+	}
+	else if ( ! privateChatId ) {
+
+		console.log( "Nick: " + message.from.username + ", Name: " + message.from.first_name + "\nuser id: " + message.chat.id );
+		return false;
+
+	}
+
+	return true;
+
+}
+
+function parseUserInput( message ) {
+
+	if ( message.text ) {
+
+		if ( message.text > 100 ) return;
+
+		switch ( userResponseState ) {
+
+			case USER_IDLE:
+				userResponseState = USER_IDLE;
+				showMainMenu();
+				break;
+
+			case USER_ASK_NUMBER_OF_CAMERAS:
+				userResponseState = USER_IDLE;
+				changeNumCameras( parseInt( message.text ) );
+				break;
+
+			default:
+				// Nothing to do
+				break;
+		}
+
+	}
+	else if ( message.voice ) {
+
+		if ( serverConfig.enableVoicePlayback ) playVoiceFile( message.voice.file_id );
 
 	}
 
@@ -550,69 +618,6 @@ function showMainMenu() {
 		sendMenu( mainMenu );
 
 	} );
-
-}
-
-function checkPrivateMessage( message ) {
-
-	if ( ! message ) return false;
-
-	if ( ( message.chat.id !== privateChatId ) && ( privateChatId !== undefined ) ) {
-
-		if ( serverConfig.intruderAlert ) {
-
-			var intruderAlertMessage = translation[ "‼‼🛑Intruder alert!!!!🛑‼‼\nSomeone has tried to use this Telegram bot." ] + "\n" +
-				"nick: " + message.from.username +
-				"\nname: " + message.from.first_name +
-				"\nlast name:" + message.from.last_name +
-				"\nforwarded:" + ( !! message.forward_from ) +
-				"\ntext: " + message.text;
-
-			console.log( intruderAlertMessage );
-
-			// Send intruder alert message
-			sendTextMessage( intruderAlertMessage );
-
-			// Send some info to the intruder
-			sendTextMessage( "Hello! 👋\nThis is a personal bot for domotic use.\nFor more info please visit the project home at Github:\nhttps://github.com/yomboprime/TeleHomeGuard", message.chat.id );
-
-		}
-
-		return false;
-
-	}
-	else if ( privateChatId === undefined ) {
-
-		console.log( "Nick: " + message.from.username + ", Name: " + message.from.first_name + "\nuser id: " + message.chat.id );
-		return false;
-
-	}
-
-	return true;
-
-}
-
-function parseUserInput( text ) {
-
-	if ( text > 100 ) return;
-
-	switch ( userResponseState ) {
-
-		case USER_IDLE:
-			userResponseState = USER_IDLE;
-			showMainMenu();
-			break;
-
-		case USER_ASK_NUMBER_OF_CAMERAS:
-console.log( "RESPONSE: " + text );
-			userResponseState = USER_IDLE;
-			changeNumCameras( parseInt( text ) );
-			break;
-
-		default:
-			// Nothing to do
-			break;
-	}
 
 }
 
@@ -1054,7 +1059,7 @@ function startRecordingCamera( cameraIndex ) {
 		c.numFrames = 0;
 		c.lastMat = null;
 		c.prevGrayMat = null;
-		c.numFramesToBegin = 5;
+		c.numFramesToBegin = 2;
 		c.numFramesLeftToEnd = serverConfig.numFramesAfterMotion;
 		c.timer = ( new Date() ).getTime() + serverConfig.maxVideoDurationSeconds * 1000;
 		numVideosWriting ++;
@@ -1290,6 +1295,83 @@ function pngFromMat( mat ) {
 	*/
 
 	return cv.imencode( '.png', mat );
+
+}
+
+function playVoiceFile( file_id ) {
+
+	telegramAPI.getFile( { file_id: file_id } ).catch( console.error ).then( ( file ) => {
+
+		var localPath = pathJoin( serverConfig.captureVideosPath, "voiceMessages" );
+		fs.mkdirSync( localPath, { recursive: true } );
+		localPath = pathJoin( localPath, ( new Date() ).getTime() + ".oga" );
+
+		downloadTelegramFile( file, localPath, ( success ) => {
+
+			if ( success ) {
+
+				sendTextMessage( "ℹ️" + translation[ "Playing voice file..." ] );
+
+				execProgram( null, "ffplay", [ "-nodisp", "-volume", "100", "-autoexit", localPath ], ( code, output, error ) => {
+
+					if ( code ) sendTextMessage( "🛑" + translation[ "Error playing voice file: " ] + error );
+					else sendTextMessage( "ℹ️" + translation[ "Voice file played successfully." ] );
+
+					execProgram( null, "rm", [ localPath ], ( code, output, error ) => {} );
+
+				} );
+
+			}
+			else {
+
+				sendTextMessage( "🛑" + translation[ "Error downloading voice file." ] );
+
+			}
+
+		} );
+
+	} ).catch( console.error );
+
+}
+
+function downloadTelegramFile( telegramFile, localPath, callback ) {
+
+	var uri = "https://api.telegram.org/file/bot" + botToken + "/" + telegramFile.file_path;
+
+	https.request( uri, function( response ) {
+
+		var data = new Stream();
+		var isError = false;
+
+		response.on( 'error', function( err ) {
+
+			isError = true;
+
+		} );
+
+		response.on( 'data', function( chunk ) {
+
+			data.push( chunk );
+
+		} );
+
+		response.on( 'end', function() {
+
+			if ( ! isError ) {
+
+				var contents = data.read();
+
+				// Write the image to its directory
+				fs.writeFileSync( localPath, contents );
+
+				callback( true );
+
+			}
+			else callback( false );
+
+		} );
+
+	} ).end();
 
 }
 

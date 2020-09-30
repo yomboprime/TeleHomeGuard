@@ -50,8 +50,7 @@ Download this repository and install dependencies (the last command will take a 
 
 Make the program start at system init (optional):
 
-Primero mira si ya existe el fichero rc.local:
-	First check if the file ```/etc/rc.local``` already exists:
+First check if the file ```/etc/rc.local``` already exists:
 
 		ls /etc/rc.local
 

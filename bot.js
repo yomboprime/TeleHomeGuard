@@ -43,6 +43,8 @@ const USER_IDLE = 0;
 const USER_ASK_NUMBER_OF_CAMERAS = 1;
 var userResponseState = USER_IDLE;
 
+var recordingStateIntervalId = 0;
+
 // Cameras
 
 var cameraIsRunning = false;
@@ -1028,6 +1030,8 @@ function processFrame( cameraIndex, err, newframeMat ) {
 
 function startRecordingCamera( cameraIndex ) {
 
+	setTimeout( setRecordingStateOn, 1200, true );
+
 	getLocaleDate( ( date ) => {
 
 		if ( ( ! cameraIsRunning ) || cameraIsClosing ) {
@@ -1111,6 +1115,55 @@ function stopRecordingCamera( cameraIndex ) {
 	camera.timer = 0;
 	camera.lastFrameWasMotion = false;
 	numVideosWriting --;
+
+}
+
+function setRecordingStateOn( setOn ) {
+
+	function sendAction() {
+
+		var recording = false;
+		for ( var i = 0, il = serverConfig.numberOfCameras; i < il; i ++ ) {
+
+			if ( cameras[ i ].timer > 0 ) {
+
+				recording = true;
+				break;
+			}
+
+		}
+
+		if ( recording ) {
+
+			telegramAPI.sendChatAction( { chat_id: privateChatId, action: "record_video" } ).catch( console.log ) ;
+
+		}
+		else {
+
+			clearInterval( recordingStateIntervalId );
+			recordingStateIntervalId = 0;
+
+		}
+
+	}
+
+	if ( setOn ) {
+
+		if ( recordingStateIntervalId ) return;
+
+		sendAction();
+
+		recordingStateIntervalId = setInterval( sendAction, 4800 );
+
+	}
+	else {
+
+		if ( ! recordingStateIntervalId ) return;
+
+		clearInterval( recordingStateIntervalId );
+		recordingStateIntervalId = 0;
+
+	}
 
 }
 

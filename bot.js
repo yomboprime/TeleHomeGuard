@@ -528,6 +528,11 @@ function parseUserInput( message ) {
 		if ( serverConfig.enableVoicePlayback ) playVoiceFile( message.voice.file_id );
 
 	}
+	else if ( message.audio ) {
+
+		if ( serverConfig.enableVoicePlayback ) playVoiceFile( message.audio.file_id );
+
+	}
 
 }
 
@@ -1304,7 +1309,7 @@ function playVoiceFile( file_id ) {
 
 		var localPath = pathJoin( serverConfig.captureVideosPath, "voiceMessages" );
 		fs.mkdirSync( localPath, { recursive: true } );
-		localPath = pathJoin( localPath, ( new Date() ).getTime() + ".oga" );
+		localPath = pathJoin( localPath, ( new Date() ).getTime() + file.file_path.replace( '/', '_' ) );
 
 		downloadTelegramFile( file, localPath, ( success ) => {
 

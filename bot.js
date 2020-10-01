@@ -90,6 +90,8 @@ function initServer() {
 
 	}
 
+	checkConfig();
+
 	languagesCodes = loadFileJSON( LANGUAGES_CODES_PATH, "utf8" );
 	if ( languagesCodes === null ) {
 
@@ -114,11 +116,55 @@ function initServer() {
 			menusEnabled = true;
 
 			if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-			else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Pleache check the cable connections and restart cameras." ] + "🛑" );
+			else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please check the cable connections and restart cameras." ] + "🛑" );
 
 		} );
 
 	} );
+
+}
+
+function checkConfig() {
+
+	var modified = false;
+
+	function checkField( field, defaultValue ) {
+
+		if ( serverConfig[ field ] === undefined ) {
+
+			modified = true;
+			serverConfig[ field ] = defaultValue;
+
+		}
+
+	}
+
+	if ( serverConfig.cameraWidth === undefined || serverConfig.cameraHeight === undefined ) {
+
+		serverConfig.cameraWidth = 640;
+		serverConfig.cameraHeight = 480;
+
+		modified = true;
+
+	}
+
+	checkField( "languageCode", "en" );
+	checkField( "translationEncodingAlias", "utf8" );
+	checkField( "numberOfCameras", 1 );
+	checkField( "cameraFPS", 10 );
+	checkField( "maxVideoDurationSeconds", 300 );
+	checkField( "numFramesAfterMotion", 50 );
+	checkField( "motionDetectionPercent", 1.2 );
+	checkField( "pixelDifferenceThreshold", 12 );
+	checkField( "captureVideosPath", "./capture/" );
+	checkField( "captureStillImagesPath", "./stillImages/" );
+	checkField( "diskQuota", 5000000000 );
+	checkField( "enableVoicePlayback", true );
+	checkField( "intruderAlert", false );
+	checkField( "showRestartAppOption", true );
+	checkField( "showUpdateSystemOption", true );
+
+	if ( modified ) saveConfig();
 
 }
 
@@ -184,6 +230,8 @@ function createMenus() {
 			if ( cameraIsRunning ) menuLabels.push( translation[ "Turn off cameras" ] );
 			else menuLabels.push( translation[ "Turn on cameras" ] );
 			menuLabels.push( translation[ "Change number of cameras" ] );
+			menuLabels.push( translation[ "Change cameras resolution" ] );
+			menuLabels.push( translation[ "Change Frames Per Second" ] );
 			if ( serverConfig.showRestartAppOption ) menuLabels.push( translation[ "Restart computer" ] );
 			menuLabels.push( translation[ "Shut down computer" ] );
 			if ( serverConfig.showUpdateSystemOption )menuLabels.push( translation[ "Update system" ] );
@@ -210,7 +258,7 @@ function createMenus() {
 					turnOnCameras( ( success ) => {
 
 						if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-						else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Pleache check the cable connections and restart cameras." ] + "🛑" );
+						else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please check the cable connections and restart cameras." ] + "🛑" );
 
 					} );
 					break;
@@ -219,6 +267,16 @@ function createMenus() {
 					deleteMenuLastMessage();
 					userResponseState = USER_ASK_NUMBER_OF_CAMERAS;
 					sendTextMessage( translation[ "Connect the new cameras or disconnect the ones you will not use, and enter the new number of cameras." ] );
+					break;
+
+				case translation[ "Change cameras resolution" ]:
+					deleteMenuLastMessage();
+					sendMenu( menusByName[ translation[ "Change cameras resolution" ] ] );
+					break;
+
+				case translation[ "Change Frames Per Second" ]:
+					deleteMenuLastMessage();
+					sendMenu( menusByName[ translation[ "Change Frames Per Second" ] ] );
 					break;
 
 				case translation[ "Restart computer" ]:
@@ -281,6 +339,142 @@ function createMenus() {
 		} );
 
 	}, translation[ "No" ], showMainMenu );
+
+	createMenu( translation[ "Change cameras resolution" ], translation[ "Current resolution: " ] + serverConfig.cameraWidth + "x" + serverConfig.cameraHeight, 1,
+
+		function () {
+
+			var menuLabels = [ ];
+
+			menuLabels.push( "160x120" );
+			menuLabels.push( "320x240" );
+			menuLabels.push( "640x480" );
+			menuLabels.push( "Return to main menu" );
+
+
+			return menuLabels;
+
+		},
+		function ( optionIndex, optionLabel ) {
+
+			deleteMenuLastMessage();
+
+			if ( optionIndex < 3 ) {
+
+				var tokens = optionLabel.split( 'x' );
+
+				var w = parseInt( tokens[ 0 ] );
+				var h = parseInt( tokens[ 1 ] );
+
+				if ( w !== serverConfig.cameraWidth || h !== serverConfig.cameraHeight ) {
+
+					turnOffCameras( () => {
+
+							setTimeout( () => {
+
+								serverConfig.cameraWidth = w;
+								serverConfig.cameraHeight = h;
+								saveConfig();
+								createCameras();
+
+
+								sendTextMessage( "ℹ️ " + translation[ "Cameras resolution set to " ] + optionLabel + " " + translation[ "Surveillance system off, restarting it..." ] );
+
+								turnOnCameras( ( success ) => {
+
+									if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
+									else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please lower the resolution." ] + "🛑" );
+
+								} );
+
+							}, 1500 );
+
+						} );
+
+				}
+				else {
+
+					sendTextMessage( translation[ "Cameras resolution set to " ] + optionLabel );
+
+				}
+
+			}
+			else {
+
+				showMainMenu();
+
+			}
+
+		}
+
+	);
+
+	createMenu( translation[ "Change Frames Per Second" ], translation[ "Current FPS: " ] + serverConfig.cameraFPS, 1,
+
+		function () {
+
+			var menuLabels = [ ];
+
+			menuLabels.push( "5" );
+			menuLabels.push( "10" );
+			menuLabels.push( "15" );
+			menuLabels.push( "30" );
+			menuLabels.push( "60" );
+			menuLabels.push( "Return to main menu" );
+
+
+			return menuLabels;
+
+		},
+		function ( optionIndex, optionLabel ) {
+
+			deleteMenuLastMessage();
+
+			if ( optionIndex < 5 ) {
+
+				var fps = parseInt( optionLabel );
+
+				if ( fps !== serverConfig.cameraFPS ) {
+
+					turnOffCameras( () => {
+
+							setTimeout( () => {
+
+								serverConfig.cameraFPS = fps;
+								saveConfig();
+								createCameras();
+
+
+								sendTextMessage( "ℹ️ " + translation[ "Cameras FPS set to " ] + optionLabel + " " + translation[ "Surveillance system off, restarting it..." ] );
+
+								turnOnCameras( ( success ) => {
+
+									if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
+									else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please lower the FPS." ] + "🛑" );
+
+								} );
+
+							}, 1500 );
+
+						} );
+
+				}
+				else {
+
+					sendTextMessage( translation[ "Cameras FPS set to " ] + optionLabel );
+
+				}
+
+			}
+			else {
+
+				showMainMenu();
+
+			}
+
+		}
+
+	);
 
 	createYesNoMenu( translation[ "Confirm restart computer?" ], "", translation[ "Yes, restart computer" ], () => {
 
@@ -806,10 +1000,14 @@ function turnOnCameras( callback ) {
 
 		if ( ! camera.cap ) return;
 
+		// Set resolution
+		camera.cap.set( cv.CAP_PROP_FRAME_WIDTH, serverConfig.cameraWidth );
+		camera.cap.set( cv.CAP_PROP_FRAME_HEIGHT, serverConfig.cameraHeight );
+
 		// Set frame rate
-		camera.cap.set( cv.CAP_PROP_FPS, serverConfig.camerasFPS );
+		camera.cap.set( cv.CAP_PROP_FPS, serverConfig.cameraFPS );
 		var realFPS = camera.cap.get( cv.CAP_PROP_FPS );
-		console.log( "Wanted FPS: " + serverConfig.camerasFPS + ", real FPS: " + realFPS );
+		console.log( "Wanted FPS: " + serverConfig.cameraFPS + ", real FPS: " + realFPS );
 
 		// Start capturing
 		camera.cap.readAsync( ( err, frameMat ) => {
@@ -911,7 +1109,7 @@ function changeNumCameras( newNumCameras ) {
 			turnOnCameras( ( success ) => {
 
 				if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-				else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Pleache check the cable connections and restart cameras." ] + "🛑" );
+				else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please check the cable connections and restart cameras." ] + "🛑" );
 
 			} );
 
@@ -1187,7 +1385,7 @@ function compressAndSendVideo( cameraIndex, stopRecording ) {
 	var videoFilePath = pathJoin( getCameraPath( cameraIndex ), cameraVideoName + ".MTS" );
 
 	// Use ffmpeg to compress the frame images into a mp4 video file
-	execProgram( null, "ffmpeg", [ "-r", "" + serverConfig.camerasFPS, "-i", pathJoin( framesPath, "%7d.png" ), videoFilePath ], ( code, output, error ) => {
+	execProgram( null, "ffmpeg", [ "-r", "" + serverConfig.cameraFPS, "-i", pathJoin( framesPath, "%7d.png" ), videoFilePath ], ( code, output, error ) => {
 
 		var videoCaption = "Camera" + ( cameraIndex + 1 ) + " " + cameraVideoName;
 

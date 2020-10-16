@@ -54,11 +54,11 @@ Make the program start at system init (optional):
 
 - First check if the file ```/etc/rc.local``` already exists:
 
-	ls /etc/rc.local
+	```ls /etc/rc.local```
 
 - If it doesn't exist, copy the one from the repository:
 
-	$ sudo cp config/rc.local /etc
+	```$ sudo cp config/rc.local /etc```
 
 - If it does exist, copy the contents of ```config/rc.local``` (except the first line) to the end of the file ```/etc/rc.local```
 

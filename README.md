@@ -56,15 +56,15 @@ Hacer que el programa se ejecute al iniciar el ordenador (opcional):
 
 - Primero mira si ya existe el fichero rc.local:
 
-	ls /etc/rc.local
+	```ls /etc/rc.local```
 
 - Si no existe, copia el del repositorio:
 
-	$ sudo cp config/rc.local /etc
+	```$ sudo cp config/rc.local /etc```
 
 - Si sí existe, copia el contenido de ```config/rc.local``` (excepto la primera línea) al final del fichero ```/etc/rc.local```
 
-Finalmente, crea el fichero de configuración en TeleHomeGuard/config/config.json con este contenido:
+Finalmente, crea el fichero de configuración en ```TeleHomeGuard/config/config.json``` con este contenido:
 
 	{
 		"languageCode": "es",

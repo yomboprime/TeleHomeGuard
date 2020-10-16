@@ -5,15 +5,15 @@ Surveillance software based on Telegram for notifications and sending videos and
 
 Characteristics:
 
-	- Several USB cameras.
-	- Motion detection, sends notifications and continuous recording (divided in video files of up to 5 minutes each)
-	- Instant Snapshots.
-	- Send it voice messages and it plays them through speakers.
-	- Complete menu
-	- Turn on and off the cameras from Telegram.
-	- Restart, power off and update system and program from Telegram.
-	- Free and without local server.
-	- Works in Raspberry Pi.
+- Several USB cameras.
+- Motion detection, sends notifications and continuous recording (divided in video files of up to 5 minutes each)
+- Instant Snapshots.
+- Send it voice messages and it plays them through speakers.
+- Complete menu
+- Turn on and off the cameras from Telegram.
+- Restart, power off and update system and program from Telegram.
+- Free and without local server.
+- Works in Raspberry Pi.
 
 ## Supported operatin systems
 
@@ -52,15 +52,15 @@ Download this repository and install dependencies (the last command will take a 
 
 Make the program start at system init (optional):
 
-	First check if the file ```/etc/rc.local``` already exists:
+- First check if the file ```/etc/rc.local``` already exists:
 
-		ls /etc/rc.local
+	ls /etc/rc.local
 
-	If it doesn't exist, copy the one from the repository:
+- If it doesn't exist, copy the one from the repository:
 
-		$ sudo cp config/rc.local /etc
+	$ sudo cp config/rc.local /etc
 
-	If it does exist, copy the contents of ```config/rc.local``` (except the first line) to the end of the file ```/etc/rc.local```
+- If it does exist, copy the contents of ```config/rc.local``` (except the first line) to the end of the file ```/etc/rc.local```
 
 Finally, create the configuration file TeleHomeGuard/config/config.json and copy this conmtents to it:
 
@@ -103,7 +103,7 @@ To run it do the following:
 
 To stop the bot from console, press ```Control + C```
 
-# Using the Telegram bot
+## Using the Telegram bot
 
 You can use any Telegram client to access the bot. You can install the Telegram mobile app or in your PC:
 
@@ -119,9 +119,9 @@ Once you have the access token for the bot, create the file ```TeleHomeGuard/con
 
 Once you have the bot created:
 
-	- Run the bot program manually as described in the previous section.
-	- Open a private chat with the bot and press the start button. In the console you will see a line indicating your Telegram nick and name, and what is worth, your Telegram id number.
-	- Create the file ```TeleHomeGuard/config/chat_id``` (without extension) and copy your Telegram id in it, so only you can access the Telegram bot. Restart the program and it is ready for use.
+- Run the bot program manually as described in the previous section.
+- Open a private chat with the bot and press the start button. In the console you will see a line indicating your Telegram nick and name, and what is worth, your Telegram id number.
+- Create the file ```TeleHomeGuard/config/chat_id``` (without extension) and copy your Telegram id in it, so only you can access the Telegram bot. Restart the program and it is ready for use.
 
 To access the bot, you simply will see the notifications in your private chat with the bot. When there is motion in the cameras you will receive a notification and the video file/s, up tyo 5 minutes each. While there is motion the videos will be sent continuously, so this program is not useful for exterior environments, where the vegetation or climate could make the detection unusable.
 
@@ -136,54 +136,62 @@ If you have more than one camera, you will get options for a snapshot in each of
 
 The configuration menu has this options:
 
-	- Turn off cameras / Turn on cameras
+- Turn off cameras / Turn on cameras
 
-		With this option you can turn off the surveillance, for example when you arrive home.
+	With this option you can turn off the surveillance, for example when you arrive home.
 
-	- Change number of cameras
+- Change number of cameras
 
-		Follow the on-screen instructions, it is very easy.
+	Follow the on-screen instructions, it is very easy.
 
-	- Restart computer
+- Change cameras resolution
 
-		If something goes wrong, this option can recover the system remotely. For this option to work, the user needs to be a sudoer. (That's true by default in the Raspberry)
+	Follow the on-screen instructions, it is very easy.
 
-	- Shut down computer
+- Change Frames Per Second
 
-		You will need to use this option always to shut down the raspberry properly and remove the power from it. The alternative is to press ```Control + C``` if the program is run manually and you have a keyboard connected.
-		For this option to work, the program will need to be started automatically as described in the installation instructions, and the user needs to be a sudoer. (That's true by default in the Raspberry) If not, the program will terminate and the computer will not shut off.
+	Follow the on-screen instructions, it is very easy.
 
-	- Update system
+- Restart computer
 
-		It is convenient to update the system regularly. This will also update the program from Github.com
-		For this option to work, the user needs to be a sudoer. (That's true by default in the Raspberry)
+	If something goes wrong, this option can recover the system remotely. For this option to work, the user needs to be a sudoer. (That's true by default in the Raspberry)
 
-	- Delete videos
+- Shut down computer
 
-		When you see the disk usage percent is too high, you can use this option to delete all videos and images.
+	You will need to use this option always to shut down the raspberry properly and remove the power from it. The alternative is to press ```Control + C``` if the program is run manually and you have a keyboard connected.
+	For this option to work, the program will need to be started automatically as described in the installation instructions, and the user needs to be a sudoer. (That's true by default in the Raspberry) If not, the program will terminate and the computer will not shut off.
 
-	- Change language
+- Update system
 
-		The currently available languages are English and Spanish. Translations to other languages is welcome, see next section.
+	It is convenient to update the system regularly. This will also update the program from Github.com
+	For this option to work, the user needs to be a sudoer. (That's true by default in the Raspberry)
 
-Puedes conectar un altavoz a la Pi, y al enviarle al bot un mensaje de voz lo reproducirá y te notificará cuándo ha teminado de reproducir.
+- Delete videos
+
+	When you see the disk usage percent is too high, you can use this option to delete all videos and images.
+
+- Change language
+
+	The currently available languages are English and Spanish. Translations to other languages is welcome, see next section.
+
+You can connect a loudspeaker to the Raspberry Pi, and when you send the bot an audio or voice message, it will play it and notify you when it has completed playback.
 
 ## Translations to other languages
 
 To add a new language to the application, please follow these steps:
 
-	- Edit the file ```config/translations/languageCodes.json``` and add the two-letter code of the language you are adding. The list of language codes is here:
+- Edit the file ```config/translations/languageCodes.json``` and add the two-letter code of the language you are adding. The list of language codes is here:
 
-		https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+	https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 
-		Remember that the code must go in quotation marks. And if it is not the last one, it must have a comma after closing the quotation marks.
+	Remember that the code must go in quotation marks. And if it is not the last one, it must have a comma after closing the quotation marks.
 
-	- Copy the file ```config/translations/en.json``` to the same directory, renaming it to ```<language code>.json```, writing in the new language code. (Alternatively you can copy another translation file if you find more easy to translate from that other language)
+- Copy the file ```config/translations/en.json``` to the same directory, renaming it to ```<language code>.json```, writing in the new language code. (Alternatively you can copy another translation file if you find more easy to translate from that other language)
 
-	- Edit the file you just created. In each line there is an English phrase (in quotation marks), a separation of a colon and a space ```:```, and then the translated phrase (in quotation marks). You just have to translate the last phrase in each line to the new language. Please, follow these observations:
+- Edit the file you just created. In each line there is an English phrase (in quotation marks), a separation of a colon and a space ```:```, and then the translated phrase (in quotation marks). You just have to translate the last phrase in each line to the new language. Please, follow these observations:
 
-		- Respect the punctuation at the begginning and at the end of the phrase. If there is a point, a space, or nothing, keep it.
-		- Keep the emojis as they are, unless you are making a customization that you don't plan to contribute.
-		- You can use an online JSON checker to check the syntax.
+	- Respect the punctuation at the begginning and at the end of the phrase. If there is a point, a space, or nothing, keep it.
+	- Keep the emojis as they are, unless you are making a customization that you don't plan to contribute.
+	- You can use an online JSON checker to check the syntax.
 
-	- Make a pull request on this Github repository with the two changed files (you can do it from the web interface) Indicate the name of the new language in the pull request description.
+- Make a pull request on this Github repository with the two changed files (you can do it from the web interface) Indicate the name of the new language in the pull request description.

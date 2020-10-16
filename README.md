@@ -7,15 +7,15 @@ Software de vigilancia con cámaras basado en Telegram para las notificaciones y
 
 Características:
 
-	- Varias cámaras USB.
-	- Detección de movimiento, envía notificaciones y grabación contínua (partida en vídeos de hasta 5 minutos)
-	- Captura de fotos instantáneas.
-	- Envío de mensajes de voz desde Telegram para que los reproduzca por altavoces.
-	- Menú completo
-	- Apagado y puesta en marcha de las cámaras desde Telegram.
-	- Reiniciar, apagar y actualizar el ordenador y la aplicación desde Telegram.
-	- Gratuito y sin servidor local.
-	- Funciona en Raspberry Pi.
+- Varias cámaras USB.
+- Detección de movimiento, envía notificaciones y grabación contínua (partida en vídeos de hasta 5 minutos)
+- Captura de fotos instantáneas.
+- Envío de mensajes de voz desde Telegram para que los reproduzca por altavoces.
+- Menú completo
+- Apagado y puesta en marcha de las cámaras desde Telegram.
+- Reiniciar, apagar y actualizar el ordenador y la aplicación desde Telegram.
+- Gratuito y sin servidor local.
+- Funciona en Raspberry Pi.
 
 ## Sistemas operativos soportados
 
@@ -35,7 +35,7 @@ Sigue las instrucciones para Raspberry Pi, aunque el sistema operativo puede ser
 
 ## Instalacion en Raspberry Pi 2, 3 y 4
 
-Instala Raspberry OS. Configura un password nuevo de sistema y la WiFi, a no ser que conectas por cable Ethernet:
+Instala Raspberry OS. Configura un password nuevo de sistema y la WiFi, a no ser que conectes por cable Ethernet:
 
 	https://ubuntu.com/download/raspberry-pi
 
@@ -54,15 +54,15 @@ Descargar este repositorio e instalar dependencias (el último comando tardará 
 
 Hacer que el programa se ejecute al iniciar el ordenador (opcional):
 
-	Primero mira si ya existe el fichero rc.local:
+- Primero mira si ya existe el fichero rc.local:
 
-		ls /etc/rc.local
+	ls /etc/rc.local
 
-	Si no existe, copia el del repositorio:
+- Si no existe, copia el del repositorio:
 
-		$ sudo cp config/rc.local /etc
+	$ sudo cp config/rc.local /etc
 
-	Si sí existe, copia el contenido de ```config/rc.local``` (excepto la primera línea) al final del fichero ```/etc/rc.local```
+- Si sí existe, copia el contenido de ```config/rc.local``` (excepto la primera línea) al final del fichero ```/etc/rc.local```
 
 Finalmente, crea el fichero de configuración en TeleHomeGuard/config/config.json con este contenido:
 
@@ -92,7 +92,7 @@ Simplemente conecta las cámaras USB al ordenador del bot.
 
 ## Ejecución del bot manualmente
 
-Si has configurado el bot para que se ejecute al inicio (ver instrucciones de instalación), al encender el ordenador comenzará por sí solo. Sin embargo, la primera ejecución debes hacerla manualmente, para obtener tu id de Telegram, como se explica en la siguiente sección "Uso del bot de Telegram"
+Si has configurado el bot para que se ejecute al inicio (ver instrucciones de instalación), al encender el ordenador comenzará por sí solo. Sin embargo, la primera ejecución debes hacerla manualmente para obtener tu id de Telegram, como se explica en la siguiente sección "Configuracion del bot de Telegram"
 
 El programa del bot necesita acceso a internet para Telegram pero no crea ningún servidor (no abre puertos)
 
@@ -105,7 +105,7 @@ Para ejecutarlo:
 
 Para terminar el bot desde la consola, pulsa ```Control + C```
 
-# Uso del bot de Telegram
+## Configuracion del bot de Telegram
 
 Se puede usar cualquier cliente de Telegram para acceder al bot. Puedes instalar la app de Telegram en tu móvil o en PC:
 
@@ -121,9 +121,11 @@ Cuando tengas el token de acceso del bot, crea el fichero ```TeleHomeGuard/confi
 
 Una vez tengas el bot creado:
 
-	- Ejecuta el programa del bot manualmente como se explica en la sección anterior.
-	- Abre una conversación privada de Telegram con él y pulsa el botón start. En la consola verás una línea indicando tu nick y nombre, y lo que interesa, que es tu número de usuario de Telegram.
-	- Crea el fichero ```TeleHomeGuard/config/chat_id``` (sin extensión) y copia tu número de usuario en él. Esto sirve para que solo tú puedas acceder al bot. Reinicia el programa y ya estará listo para usar.
+- Ejecuta el programa del bot manualmente como se explica en la sección anterior.
+- Abre una conversación privada de Telegram con él y pulsa el botón start. En la consola verás una línea indicando tu nick y nombre, y lo que interesa, que es tu número de usuario de Telegram.
+- Crea el fichero ```TeleHomeGuard/config/chat_id``` (sin extensión) y copia tu número de usuario en él. Esto sirve para que solo tú puedas acceder al bot. Reinicia el programa y ya estará listo para usar.
+
+## Uso del bot de Telegram
 
 Para acceder al bot simplemente verás en tu conversación privada con él las notificaciones. Cuando haya movimiento en una cámara se te enviará una notificación y luego el vídeo, de hasta 5 minutos. Se enviarán vídeos de forma contínua hasta que no haya movimiento, por lo que esta aplicación no es útil para poner las cámaras en exteriores, donde el movimiento del follaje podría hacer la detección inútil.
 
@@ -138,35 +140,44 @@ Si tienes más cámaras saldrán opciones para tomar instantáneas en cada una d
 
 El menú de configuración tiene estas opciones:
 
-	- Apagar cámaras / Encender cámaras
+- Apagar cámaras / Encender cámaras
 
-		Con esta opción puedes desactivar la vigilancia por ejemplo al llegar a casa.
+	Con esta opción puedes desactivar la vigilancia por ejemplo al llegar a casa.
 
-	- Cambiar número de cámaras
+- Cambiar número de cámaras
 
-		Sigue las intrucciones para cambiar el número de cámaras conectadas, es muy fácil.
+	Sigue las intrucciones para cambiar el número de cámaras conectadas, es muy fácil.
 
-	- Reiniciar ordenador
+- Cambiar resolución de las cámaras
 
-		Por si surge algún problema, esta opción puede recuperar el funcionamiento del sistema. Para que funcione esta opción es necesario que el usuario sea sudoer. (esto es cierto por defecto en la Raspberry).
+	Sigue las intrucciones para cambiar la resolución, es muy fácil.
 
-	- Apagar ordenador
+- Cambiar Fotogramas Por Segundo
 
-		Deberás usar siempre esta opción antes de desenchufar la Raspberry de la corriente. La aternativa es apagar el programa con ```Control + C``` si se está ejecutando manualmente y tienes acceso por teclado directo.
-		Para que funcione esta opción, el programa debe ejecutarse al inicio como está explicado en la instalación, y el usuario ha de ser sudoer (esto es cierto por defecto en la Raspberry). Si no, simplemente terminará el programa.
+	Sigue las intrucciones para cambiar los FPS, es muy fácil.
 
-	- Actualizar sistema
 
-		Es conveniente actualizar el sistema regularmente. Esto actualizará también la aplicación desde Github.com
-		Para que funcione esta opción es necesario que el usuario sea sudoer (esto es cierto por defecto en la Raspberry).
+- Reiniciar ordenador
 
-	- Borrar vídeos
+	Por si surge algún problema, esta opción puede recuperar el funcionamiento del sistema. Para que funcione esta opción es necesario que el usuario sea sudoer. (esto es cierto por defecto en la Raspberry).
 
-		Cuando veas que el porcentaje de disco usado (mostrado en el menú principal) se hace alto, deberías usar esta opción para borrar vídeos e imágenes para liberarlo.
+- Apagar ordenador
 
-	- Cambiar idioma
+	Deberás usar siempre esta opción antes de desenchufar la Raspberry de la corriente. La aternativa es apagar el programa con ```Control + C``` si se está ejecutando manualmente y tienes acceso por teclado directo.
+	Para que funcione esta opción, el programa debe ejecutarse al inicio como está explicado en la instalación, y el usuario ha de ser sudoer (esto es cierto por defecto en la Raspberry). Si no, simplemente terminará el programa.
 
-		De momento disponibles inglés y español. Traducciones a otros idiomas son bienvenidas, ver la sección más abajo, "Traducciones a otros idiomas"
+- Actualizar sistema
+
+	Es conveniente actualizar el sistema regularmente. Esto actualizará también la aplicación desde Github.com
+	Para que funcione esta opción es necesario que el usuario sea sudoer (esto es cierto por defecto en la Raspberry).
+
+- Borrar vídeos
+
+	Cuando veas que el porcentaje de disco usado (mostrado en el menú principal) se hace alto, deberías usar esta opción para borrar vídeos e imágenes para liberarlo.
+
+- Cambiar idioma
+
+	De momento disponibles inglés y español. Traducciones a otros idiomas son bienvenidas, ver la sección más abajo, "Traducciones a otros idiomas"
 
 Puedes conectar un altavoz a la Pi, y al enviarle al bot un mensaje de voz lo reproducirá y te notificará cuándo ha teminado de reproducir.
 
@@ -174,19 +185,19 @@ Puedes conectar un altavoz a la Pi, y al enviarle al bot un mensaje de voz lo re
 
 Para añadir un nuevo idioma a la aplicación sigue estos pasos:
 
-	- Edita el fichero de texto ```config/translations/languageCodes.json``` y añade el código del idioma que vas a añadir. La lista de códigos de idioma está aquí:
+- Edita el fichero de texto ```config/translations/languageCodes.json``` y añade el código del idioma que vas a añadir. La lista de códigos de idioma está aquí:
 
-		https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+	https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 
-		Recuerda que el código ha de ir entre comillas en el fichero. Y si no es el último de la lista, debe tener una coma después de cerrar las comillas.
+	Recuerda que el código ha de ir entre comillas en el fichero. Y si no es el último de la lista, debe tener una coma después de cerrar las comillas.
 
-	- Copia el fichero ```config/translations/en.json``` al mismo directorio, renombrándolo a ```<código de idioma>.json```, poniendo el código del nuevo idioma. (Alternativamente puedes copiar otro fichero de traducción si te es más fácil traducir desde ese idioma)
+- Copia el fichero ```config/translations/en.json``` al mismo directorio, renombrándolo a ```<código de idioma>.json```, poniendo el código del nuevo idioma. (Alternativamente puedes copiar otro fichero de traducción si te es más fácil traducir desde ese idioma)
 
-	- Edita el fichero que acabas de crear. En cada línea del fichero hay una frase en inglés (entre comillas), una separación de dos puntos y espacio, y finalmente la frase traducida (entre comillas). Tan solo tienes que traducir la frase de la derecha en cada línea al nuevo idioma. Por favor, sigue estas observaciones:
+- Edita el fichero que acabas de crear. En cada línea del fichero hay una frase en inglés (entre comillas), una separación de dos puntos y espacio, y finalmente la frase traducida (entre comillas). Tan solo tienes que traducir la frase de la derecha en cada línea al nuevo idioma. Por favor, sigue estas observaciones:
 
-		- Respeta la puntuación al principio y al final de la frase. Si hay un espacio, un punto, o dos puntos, o nada, manten esa puntuación.
-		- Mantén los emojis como están, a no ser que estés haciendo un fichero personalizado que no piensas contribuir.
-		- Puedes usar un chequeador de ficheros JSON online para verificar que no te falta alguna coma, etc.
+	- Respeta la puntuación al principio y al final de la frase. Si hay un espacio, un punto, o dos puntos, o nada, manten esa puntuación.
+	- Mantén los emojis como están, a no ser que estés haciendo un fichero personalizado que no piensas contribuir.
+	- Puedes usar un chequeador de ficheros JSON online para verificar que no te falta alguna coma, etc.
 
-	- Haz un "pull request" en este proyecto de Github con los dos ficheros cambiados (puedes hacerlo desde la web) Indica en la descripción del pull request el nombre del idioma (al menos en inglés)
+- Haz un "pull request" en este proyecto de Github con los dos ficheros cambiados (puedes hacerlo desde la web) Indica en la descripción del pull request el nombre del idioma (al menos en inglés)
 

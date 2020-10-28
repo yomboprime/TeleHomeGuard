@@ -67,8 +67,9 @@ Finally, create the configuration file TeleHomeGuard/config/config.json and copy
 	{
 		"languageCode": "es",
 		"translationEncodingAlias": "utf8",
-		"numberOfCameras": 1,
 		"camerasFPS": 10,
+		"cameraWidth": 640,
+		"cameraHeight": 480,
 		"maxVideoDurationSeconds": 300,
 		"numFramesAfterMotion": 50,
 		"motionDetectionPercent": 1.2,

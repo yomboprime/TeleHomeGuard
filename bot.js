@@ -8,7 +8,7 @@ const PNG = require( 'pngjs' ).PNG;
 
 const fs = require( 'fs' );
 const pathJoin = require( 'path' ).join;
-const { spawn } = require( 'child_process' );
+const { spawn, exec } = require( 'child_process' );
 const https = require( 'https' );
 const Stream = require( 'stream' ).Transform;
 
@@ -40,7 +40,6 @@ var menusByName = null;
 var numVideosUploading = 0;
 
 const USER_IDLE = 0;
-const USER_ASK_NUMBER_OF_CAMERAS = 1;
 var userResponseState = USER_IDLE;
 
 var recordingStateIntervalId = 0;
@@ -50,6 +49,7 @@ var recordingStateIntervalId = 0;
 var cameraIsRunning = false;
 var cameraIsClosing = false;
 var cameraCloseCallback = null;
+var numberOfCameras = 0;
 var cameras = null;
 var numVideosWriting = 0;
 
@@ -103,8 +103,6 @@ function initServer() {
 
 	loadTranslation();
 
-	createCameras();
-
 	createMenus();
 
 	startTelegram( () => {
@@ -114,9 +112,6 @@ function initServer() {
 		turnOnCameras( ( success ) => {
 
 			menusEnabled = true;
-
-			if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-			else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please check the cable connections and restart cameras." ] + "🛑" );
 
 		} );
 
@@ -139,6 +134,18 @@ function checkConfig() {
 
 	}
 
+	var thisVersion = 2;
+
+	// Remove old fields
+	checkField( "numberOfCameras", undefined );
+
+	// Version specific checks
+	/*
+	if ( serverConfig.version < ... ) {
+		...
+	}
+	*/
+
 	if ( serverConfig.cameraWidth === undefined || serverConfig.cameraHeight === undefined ) {
 
 		serverConfig.cameraWidth = 640;
@@ -150,7 +157,6 @@ function checkConfig() {
 
 	checkField( "languageCode", "en" );
 	checkField( "translationEncodingAlias", "utf8" );
-	checkField( "numberOfCameras", 1 );
 	checkField( "cameraFPS", 10 );
 	checkField( "maxVideoDurationSeconds", 300 );
 	checkField( "numFramesAfterMotion", 50 );
@@ -163,6 +169,8 @@ function checkConfig() {
 	checkField( "intruderAlert", false );
 	checkField( "showRestartAppOption", true );
 	checkField( "showUpdateSystemOption", true );
+
+	checkField( "version", thisVersion );
 
 	if ( modified ) saveConfig();
 
@@ -178,7 +186,7 @@ function createMenus() {
 
 			var menuLabels = [ ];
 
-			for ( var i = 0, il = serverConfig.numberOfCameras; i < il; i ++ ) {
+			for ( var i = 0, il = numberOfCameras; i < il; i ++ ) {
 
 				menuLabels.push( translation[ "Snapshot" ] + " Cam" + ( i + 1  ) );
 
@@ -193,7 +201,7 @@ function createMenus() {
 
 			mainMenuShown = true;
 
-			if ( optionIndex < serverConfig.numberOfCameras ) {
+			if ( optionIndex < numberOfCameras ) {
 
 				var iCamera = optionIndex;
 
@@ -229,7 +237,6 @@ function createMenus() {
 
 			if ( cameraIsRunning ) menuLabels.push( translation[ "Turn off cameras" ] );
 			else menuLabels.push( translation[ "Turn on cameras" ] );
-			menuLabels.push( translation[ "Change number of cameras" ] );
 			menuLabels.push( translation[ "Change cameras resolution" ] );
 			menuLabels.push( translation[ "Change Frames Per Second" ] );
 			if ( serverConfig.showRestartAppOption ) menuLabels.push( translation[ "Restart computer" ] );
@@ -255,18 +262,7 @@ function createMenus() {
 
 				case translation[ "Turn on cameras" ]:
 					deleteMenuLastMessage();
-					turnOnCameras( ( success ) => {
-
-						if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-						else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please check the cable connections and restart cameras." ] + "🛑" );
-
-					} );
-					break;
-
-				case translation[ "Change number of cameras" ]:
-					deleteMenuLastMessage();
-					userResponseState = USER_ASK_NUMBER_OF_CAMERAS;
-					sendTextMessage( translation[ "Connect the new cameras or disconnect the ones you will not use, and enter the new number of cameras." ] );
+					turnOnCameras( ( success ) => { } );
 					break;
 
 				case translation[ "Change cameras resolution" ]:
@@ -375,17 +371,10 @@ function createMenus() {
 								serverConfig.cameraWidth = w;
 								serverConfig.cameraHeight = h;
 								saveConfig();
-								createCameras();
-
 
 								sendTextMessage( "ℹ️ " + translation[ "Cameras resolution set to " ] + optionLabel + " " + translation[ "Surveillance system off, restarting it..." ] );
 
-								turnOnCameras( ( success ) => {
-
-									if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-									else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please lower the resolution." ] + "🛑" );
-
-								} );
+								turnOnCameras( ( success ) => { } );
 
 							}, 1500 );
 
@@ -442,17 +431,10 @@ function createMenus() {
 
 								serverConfig.cameraFPS = fps;
 								saveConfig();
-								createCameras();
-
 
 								sendTextMessage( "ℹ️ " + translation[ "Cameras FPS set to " ] + optionLabel + " " + translation[ "Surveillance system off, restarting it..." ] );
 
-								turnOnCameras( ( success ) => {
-
-									if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-									else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please lower the FPS." ] + "🛑" );
-
-								} );
+								turnOnCameras( ( success ) => { } );
 
 							}, 1500 );
 
@@ -708,11 +690,6 @@ function parseUserInput( message ) {
 				showMainMenu();
 				break;
 
-			case USER_ASK_NUMBER_OF_CAMERAS:
-				userResponseState = USER_IDLE;
-				changeNumCameras( parseInt( message.text ) );
-				break;
-
 			default:
 				// Nothing to do
 				break;
@@ -954,42 +931,32 @@ function saveConfig() {
 
 }
 
-function createCameras() {
+function turnOnCameras( callback ) {
 
-	cameras = [ ];
+	function onTurnedOn( success ) {
 
-	for ( var i = 0, numCameras = serverConfig.numberOfCameras; i < numCameras; i ++ ) {
+		if ( success ) sendTextMessage( "✅" + translation[ "Number of cameras that have started successfully: " ] + numberOfCameras + " ✅" );
+		else {
 
-		cameras[ i ] = {
-			cap: null,
-			lastMat: null,
-			prevGrayMat: null,
-			lastFrameWasMotion: false,
-			numFramesToBegin: 0,
-			numFramesLeftToEnd: 0,
-			timer: 0,
-			uploadingVideo: false,
-			numFrames: 0,
-			videoName: null,
-			videoPath: null
-		};
+			console.log( "Error: No cameras were detected" );
+			sendTextMessage( "🛑" + translation[ "Error: No cameras were detected" ] );
+
+		}
+
+		callback( success );
 
 	}
 
-}
-
-function turnOnCameras( callback ) {
-
 	if ( cameraIsRunning ) {
 
-		callback( true );
+		onTurnedOn( true );
 		return;
 
 	}
 
 	if ( cameraIsClosing ) {
 
-		callback( false );
+		onTurnedOn( false );
 		return;
 
 	}
@@ -998,7 +965,7 @@ function turnOnCameras( callback ) {
 
 		var camera = cameras[ cameraIndex ];
 
-		if ( ! camera.cap ) return;
+		if ( ! camera.cap ) return false;
 
 		// Set resolution
 		camera.cap.set( cv.CAP_PROP_FRAME_WIDTH, serverConfig.cameraWidth );
@@ -1016,41 +983,72 @@ function turnOnCameras( callback ) {
 
 		} );
 
-	}
-
-	var success = true;
-	for ( var iCamera = 0, numCameras = serverConfig.numberOfCameras; iCamera < numCameras; iCamera ++ ) {
-
-		var c = cameras[ iCamera ];
-
-		c.timer = 0;
-		c.numFrames = 0;
-
-		try {
-			c.cap = new cv.VideoCapture( /*"/dev/video" +*/ iCamera );
-		}
-		catch ( e ) {
-			console.log( "Camera" + ( iCamera + 1 ) + " could not be started." );
-			sendTextMessage( "Camera" + ( iCamera + 1 ) + translation[ " could not be started." ] );
-			c.cap = null;
-			success = false;
-		}
+		return true;
 
 	}
 
-	setTimeout( () => {
+	execProgram( null, "ls -l /dev/video*", ( code, output, error ) => {
 
-		cameraIsRunning = true;
+		cameras = [ ];
 
-		for ( var iCamera = 0, numCameras = serverConfig.numberOfCameras; iCamera < numCameras; iCamera ++ ) {
+		var numCameraDeviceFiles = code ? 0 : output.split( '\n' ).length - 1;
 
-			initCamera( iCamera );
+		var iCamera = 0;
+
+		for ( var iDeviceFile = 0; iDeviceFile < numCameraDeviceFiles; iDeviceFile ++ ) {
+
+			var cap = null;
+
+			try {
+
+				cap = new cv.VideoCapture( iDeviceFile );
+
+			}
+			catch ( e ) {
+
+				// Nothing to do here
+
+			}
+
+			if ( cap ) {
+
+				cameras[ iCamera ++ ] = {
+					cap: cap,
+					lastMat: null,
+					prevGrayMat: null,
+					lastFrameWasMotion: false,
+					numFramesToBegin: 0,
+					numFramesLeftToEnd: 0,
+					timer: 0,
+					uploadingVideo: false,
+					numFrames: 0,
+					videoName: null,
+					videoPath: null
+				};
+
+			}
 
 		}
 
-		callback( success );
+		numberOfCameras = iCamera;
+console.log( "numberOfCameras = " + numberOfCameras );
+		setTimeout( () => {
 
-	}, 1000 );
+			cameraIsRunning = true;
+
+			var success = true;
+
+			for ( var i = 0; i < numberOfCameras; i ++ ) {
+
+				success &= initCamera( i );
+
+			}
+
+			onTurnedOn( numberOfCameras > 0 );
+
+		}, 1000 );
+
+	}, false );
 
 }
 
@@ -1066,7 +1064,7 @@ function turnOffCameras( callback ) {
 	cameraIsClosing = true;
 	cameraCloseCallback = callback;
 
-	for ( var i = 0, numCameras = serverConfig.numberOfCameras; i < numCameras; i ++ ) {
+	for ( var i = 0; i < numberOfCameras; i ++ ) {
 
 		if ( cameras[ i ].cap ) {
 
@@ -1082,42 +1080,6 @@ function turnOffCameras( callback ) {
 
 }
 
-function changeNumCameras( newNumCameras ) {
-
-	if ( isNaN( newNumCameras ) || ( ! Number.isInteger( newNumCameras ) ) || ( newNumCameras < 1 ) ) {
-
-		userResponseState = USER_ASK_NUMBER_OF_CAMERAS;
-		sendTextMessage( translation[ "You must enter the number of cameras, an integer greater or equal than 1." ] );
-		return;
-
-	}
-
-	userResponseState = USER_IDLE;
-
-	turnOffCameras( () => {
-
-
-		setTimeout( () => {
-
-			serverConfig.numberOfCameras = newNumCameras;
-			saveConfig();
-			createCameras();
-
-
-			sendTextMessage( "ℹ️ " + translation[ "The number of cameras has been changed to " ] + newNumCameras + ". " + translation[ "Surveillance system off, restarting it..." ] );
-
-			turnOnCameras( ( success ) => {
-
-				if ( success ) sendTextMessage( "✅" + translation[ "Cameras have started successfully" ] + "✅" );
-				else sendTextMessage( "🛑" + translation[ "Some camera/s could not be started. Please check the cable connections and restart cameras." ] + "🛑" );
-
-			} );
-
-		}, 1500 );
-
-	} );
-
-}
 
 function onCameraClosed( cameraIndex, err ) {
 
@@ -1134,14 +1096,13 @@ function onCameraClosed( cameraIndex, err ) {
 	if ( cameraIsClosing ) {
 
 		var numCamsClosed = 0;
-		var numCameras = serverConfig.numberOfCameras;
-		for ( var i = 0; i < numCameras; i ++ ) {
+		for ( var i = 0; i < numberOfCameras; i ++ ) {
 
 			if ( ! cameras[ i ].cap ) numCamsClosed ++;
 
 		}
 
-		if ( numCamsClosed === numCameras ) {
+		if ( numCamsClosed === numberOfCameras ) {
 
 			cameraIsClosing = false;
 			cameraIsRunning = false;
@@ -1321,7 +1282,7 @@ function setRecordingStateOn( setOn ) {
 	function sendAction() {
 
 		var recording = false;
-		for ( var i = 0, il = serverConfig.numberOfCameras; i < il; i ++ ) {
+		for ( var i = 0; i < numberOfCameras; i ++ ) {
 
 			if ( cameras[ i ].timer > 0 ) {
 
@@ -1385,7 +1346,7 @@ function compressAndSendVideo( cameraIndex, stopRecording ) {
 	var videoFilePath = pathJoin( getCameraPath( cameraIndex ), cameraVideoName + ".MTS" );
 
 	// Use ffmpeg to compress the frame images into a mp4 video file
-	execProgram( null, "ffmpeg", [ "-r", "" + serverConfig.cameraFPS, "-i", pathJoin( framesPath, "%7d.png" ), videoFilePath ], ( code, output, error ) => {
+	spawnProgram( null, "ffmpeg", [ "-r", "" + serverConfig.cameraFPS, "-i", pathJoin( framesPath, "%7d.png" ), videoFilePath ], ( code, output, error ) => {
 
 		var videoCaption = "Camera" + ( cameraIndex + 1 ) + " " + cameraVideoName;
 
@@ -1568,12 +1529,12 @@ function playVoiceFile( file_id ) {
 
 				sendTextMessage( "ℹ️" + translation[ "Playing voice file..." ] );
 
-				execProgram( null, "ffplay", [ "-nodisp", "-volume", "100", "-autoexit", localPath ], ( code, output, error ) => {
+				spawnProgram( null, "ffplay", [ "-nodisp", "-volume", "100", "-autoexit", localPath ], ( code, output, error ) => {
 
 					if ( code ) sendTextMessage( "🛑" + translation[ "Error playing voice file: " ] + error );
 					else sendTextMessage( "ℹ️" + translation[ "Voice file played successfully." ] );
 
-					execProgram( null, "rm", [ localPath ], ( code, output, error ) => {} );
+					spawnProgram( null, "rm", [ localPath ], ( code, output, error ) => {} );
 
 				} );
 
@@ -1656,7 +1617,7 @@ function getDiskUsage( callback ) {
 
 		// callback receives ( used, totalUsed ) human readable disk usage string and total used bytes
 
-		execProgram( null, "du", [ "-hs", path ], ( code, output, error ) => {
+		spawnProgram( null, "du", [ "-hs", path ], ( code, output, error ) => {
 
 			output = output.split( "\t" )[ 0 ];
 
@@ -1726,7 +1687,7 @@ function updateSystem() {
 	menusEnabled = false;
 	sendTextMessage( "ℹ️ " + translation[ "Updating operating system..." ] );
 
-	execProgram( null, "sudo", [ "apt", "-y", "update" ], ( code1, output1, error1 ) => {
+	spawnProgram( null, "sudo", [ "apt", "-y", "update" ], ( code1, output1, error1 ) => {
 
 		if ( code1 ) {
 
@@ -1739,7 +1700,7 @@ function updateSystem() {
 
 		sendTextMessage( "ℹ️ " + translation[ "Installing updates..." ] );
 
-		execProgram( null, "sudo", [ "apt", "-y", "upgrade" ], ( code2, output2, error2 ) => {
+		spawnProgram( null, "sudo", [ "apt", "-y", "upgrade" ], ( code2, output2, error2 ) => {
 
 			if ( code2 ) {
 
@@ -1752,7 +1713,7 @@ function updateSystem() {
 
 			sendTextMessage( "ℹ️ " + translation[ "Updating application..." ] );
 
-			execProgram( null, "git", [ "pull", "origin", "master" ], ( code3, output3, error3 ) => {
+			spawnProgram( null, "git", [ "pull", "origin", "master" ], ( code3, output3, error3 ) => {
 
 				if ( code3 ) {
 
@@ -1765,7 +1726,7 @@ function updateSystem() {
 
 				sendTextMessage( "ℹ️ " + translation[ "Installing application updates..." ] );
 
-				execProgram( null, "npm", [ "install" ], ( code4, output4, error4 ) => {
+				spawnProgram( null, "npm", [ "install" ], ( code4, output4, error4 ) => {
 
 					if ( code4 ) {
 
@@ -1790,7 +1751,7 @@ function updateSystem() {
 
 }
 
-function execProgram( cwd, program, args, callback, cancelOutput ) {
+function spawnProgram( cwd, program, args, callback, cancelOutput ) {
 
 	var p;
 
@@ -1824,9 +1785,43 @@ function execProgram( cwd, program, args, callback, cancelOutput ) {
 
 }
 
+function execProgram( cwd, command, callback, cancelOutput ) {
+
+	var p;
+
+	if ( cwd ) p = exec( command, { cwd: cwd } );
+	else p = exec( command );
+
+	var output = "";
+	var error = "";
+
+	p.stdout.on( 'data', ( data ) => {
+
+		if ( ! cancelOutput ) output += data;
+
+	} );
+
+	p.stderr.on( 'data', ( data ) => {
+
+		error += data;
+
+	} );
+
+	p.on( 'exit', ( code, signal ) => {
+
+		if ( callback ) {
+
+			callback( code, output, error );
+
+		}
+
+	} );
+
+}
+
 function getLocaleDate( callback ) {
 
-	execProgram( null, "date", [ ], ( code, output, err ) => {
+	spawnProgram( null, "date", [ ], ( code, output, err ) => {
 
 		callback( output );
 
@@ -1888,14 +1883,14 @@ function finish() {
 
 		case EXIT_REBOOTING:
 			salute( false );
-			execProgram( null, "sudo", [ "reboot" ], () => {
+			spawnProgram( null, "sudo", [ "reboot" ], () => {
 				process.exit( 0 );
 			}, 1000 );
 			break;
 
 		case EXIT_POWER_OFF:
 			salute( false );
-			execProgram( null, "sudo", [ "shutdown", "now" ], () => {
+			spawnProgram( null, "sudo", [ "shutdown", "now" ], () => {
 				process.exit( 0 );
 			}, 1000 );
 			break;

@@ -69,8 +69,9 @@ Finalmente, crea el fichero de configuración en ```TeleHomeGuard/config/config.
 	{
 		"languageCode": "es",
 		"translationEncodingAlias": "utf8",
-		"numberOfCameras": 1,
 		"camerasFPS": 10,
+		"cameraWidth": 640,
+		"cameraHeight": 480,
 		"maxVideoDurationSeconds": 300,
 		"numFramesAfterMotion": 50,
 		"motionDetectionPercent": 1.2,

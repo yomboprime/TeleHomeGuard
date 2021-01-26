@@ -4,3 +4,4 @@ config/chat_id
 config/config.json
 capture
 stillImages
+package-lock.json

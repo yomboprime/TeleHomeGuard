@@ -29,15 +29,15 @@ Probado en un PC potente y en una Raspberry Pi 4 de 4 GB.
 
 La/s cámara/s pueden ser USB2 o USB3.
 
-## Instalacion en PC
+## Instalación en PC
 
 Sigue las instrucciones para Raspberry Pi, aunque el sistema operativo puede ser cualquier distro de GNU/Linux.
 
-## Instalacion en Raspberry Pi 2, 3 y 4
+## Instalación en Raspberry Pi 2, 3 y 4
 
 Instala Raspberry OS. Configura un password nuevo de sistema y la WiFi, a no ser que conectes por cable Ethernet:
 
-	https://ubuntu.com/download/raspberry-pi
+	https://www.raspberrypi.org/software/operating-systems/
 
 Instalar requerimientos (tardará un rato). Ejecuta en la consola:
 
@@ -106,7 +106,7 @@ Para ejecutarlo:
 
 Para terminar el bot desde la consola, pulsa ```Control + C```
 
-## Configuracion del bot de Telegram
+## Configuración del bot de Telegram
 
 Se puede usar cualquier cliente de Telegram para acceder al bot. Puedes instalar la app de Telegram en tu móvil o en PC:
 

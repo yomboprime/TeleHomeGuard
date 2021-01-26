@@ -35,7 +35,7 @@ Follow the instructions for Raspberry Pi, and the operating system can be any GN
 
 Instala Raspberry OS. Configure the password and WiFi (unless you are connecting via Ethernet cable):
 
-	https://ubuntu.com/download/raspberry-pi
+	https://www.raspberrypi.org/software/operating-systems/
 
 Install requirements (it will take a while) Execute in the console this commands:
 

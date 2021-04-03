@@ -656,7 +656,7 @@ function checkPrivateMessage( message ) {
 			console.log( intruderAlertMessage );
 
 			// Send intruder alert message
-			sendTextMessage( intruderAlertMessage );
+			sendTextMessage( intruderAlertMessage, undefined, true );
 
 			// Send some info to the intruder
 			sendTextMessage( "Hello! 👋\nThis is a personal bot for domotic use.\nFor more info please visit the project home at Github:\nhttps://github.com/yomboprime/TeleHomeGuard", message.chat.id );
@@ -799,12 +799,15 @@ function showMainMenu() {
 
 }
 
-function sendTextMessage( text, chat_id ) {
+function sendTextMessage( text, chat_id, enableNotifications ) {
+
+	var disNot = enableNotifications ? "false" : "true";
 
 	telegramAPI.sendMessage( {
 		chat_id: chat_id === undefined ? privateChatId : chat_id,
 		text: text,
-		parse_mode: 'Markdown'
+		parse_mode: 'Markdown',
+		disable_notification: disNot
 	} ).catch( console.error );
 
 }
@@ -852,7 +855,8 @@ function sendMenu( menu ) {
 		parse_mode: 'Markdown',
 		reply_markup: {
 			inline_keyboard: options
-		}
+		},
+		disable_notification: "true"
 	} ).then( ( message1 ) => {
 
 		menuLastMessageId = message1.message_id;
@@ -863,6 +867,7 @@ function sendMenu( menu ) {
 				chat_id: privateChatId,
 				text: menu.additionalText,
 				parse_mode: 'Markdown',
+				disable_notification: "true"
 			} ).then( ( message2 ) => {
 
 				menuLastMessageIdAdditionalText = message2.message_id;
@@ -1428,7 +1433,7 @@ function detectMotion( cameraIndex, newframeMat ) {
 
 	if ( camera.lastFrameWasMotion && thereIsMotion && ( ! camera.uploadingVideo ) && ( camera.timer === 0 ) ) {
 
-		sendTextMessage( translation[ "‼‼🛑Alert!!!!🛑‼‼\nMotion detected in cameras. Sending video/s shortly..." ] );
+		sendTextMessage( translation[ "‼‼🛑Alert!!!!🛑‼‼\nMotion detected in cameras. Sending video/s shortly..." ], undefined, true );
 
 		startRecordingCamera( cameraIndex );
 
@@ -1679,7 +1684,7 @@ function updateSystem() {
 
 	if ( ( numVideosUploading > 0 ) || ( numVideosWriting > 0 ) ) {
 
-		sendTextMessage( "ℹ️ " + translation[ "No se puede actualizar el sistema porque se está/n grabando vídeo/s en ste momento. Inténtalo más tarde." ] );
+		sendTextMessage( "ℹ️ " + translation[ "The system cannot be updated right now because there are videos being recorded at this moment. Please try again later." ] );
 		return;
 
 	}
